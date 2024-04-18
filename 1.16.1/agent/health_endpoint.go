@@ -109,6 +109,14 @@ RETRY_ONCE:
 	return out.HealthChecks, nil
 }
 
+// NOTE(ywen): This is the handler of endpoint `/v1/health/checks/`. For all the endpoints,
+// see `agent/http_register.go`.
+//
+// `debug.PrintStack()` shows the call stack of this method is as follows:
+// - `agent/http.go:251`: `return thisFn(s, resp, req)`
+// - `agent/http.go:558`: `obj, err = handler(resp, req)`
+// - `agent/http.go:190`: `handler(resp, req)`
+// - etc.
 func (s *HTTPHandlers) HealthServiceChecks(resp http.ResponseWriter, req *http.Request) (interface{}, error) {
 	// Set default DC
 	args := structs.ServiceSpecificRequest{}
@@ -128,7 +136,7 @@ func (s *HTTPHandlers) HealthServiceChecks(resp http.ResponseWriter, req *http.R
 	}
 
 	// Make the RPC request
-	var out structs.IndexedHealthChecks
+	var out structs.IndexedHealthChecks	// NOTE(ywen): Defined in `agent/structs/structs.go`
 	defer setMeta(resp, &out.QueryMeta)
 RETRY_ONCE:
 	if err := s.agent.RPC(req.Context(), "Health.ServiceChecks", &args, &out); err != nil {
