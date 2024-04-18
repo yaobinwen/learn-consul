@@ -3,6 +3,7 @@
 
 package agent
 
+// NOTE(ywen): This function associates endpoints with their handlers.
 func init() {
 	registerEndpoint("/v1/acl/bootstrap", []string{"PUT"}, (*HTTPHandlers).ACLBootstrap)
 	registerEndpoint("/v1/acl/login", []string{"POST"}, (*HTTPHandlers).ACLLogin)
