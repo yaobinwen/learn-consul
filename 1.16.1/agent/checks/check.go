@@ -1201,7 +1201,7 @@ func (s *StatusHandler) updateCheck(checkID structs.CheckID, status, output stri
 		s.successCounter++
 		s.failuresCounter = 0
 		if s.successCounter >= s.successBeforePassing {
-			s.logger.Debug("Check status updated",
+			s.logger.Info("Check status updated",
 				"check", checkID.String(),
 				"status", status,
 			)

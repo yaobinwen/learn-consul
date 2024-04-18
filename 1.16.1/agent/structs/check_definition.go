@@ -20,6 +20,8 @@ type CheckDefinition struct {
 	Notes     string
 	ServiceID string
 	Token     string
+	// NOTE(ywen): `Status` is optional but it specifies the initial status of
+	// the heath check. By default it is `critical`.
 	Status    string
 
 	// Copied fields from CheckType without the fields
@@ -178,12 +180,18 @@ func (t *CheckDefinition) UnmarshalJSON(data []byte) (err error) {
 	return nil
 }
 
+// NOTE(ywen): This is at least called by `Agent.loadChecks()`.
 func (c *CheckDefinition) HealthCheck(node string) *HealthCheck {
+	// NOTE(ywen): Note that there are two `HealthCheck` structs: one is defined
+	// in `agent/structs/structs.go` and the other in `api/health.go`. They are
+	// similar but not exactly the same. Also note this file imports
+	// "github.com/hashicorp/consul/api" so the `HealthCheck` used here should
+	// be from the `api` module (i.e., from `health.go`).
 	health := &HealthCheck{
 		Node:           node,
 		CheckID:        c.ID,
 		Name:           c.Name,
-		Status:         api.HealthCritical,
+		Status:         api.HealthCritical,	// NOTE(ywen): Initially critical.
 		Notes:          c.Notes,
 		ServiceID:      c.ServiceID,
 		Interval:       c.Interval.String(),
@@ -191,6 +199,8 @@ func (c *CheckDefinition) HealthCheck(node string) *HealthCheck {
 		EnterpriseMeta: c.EnterpriseMeta,
 	}
 	if c.Status != "" {
+		// NOTE(ywen): But the initial status specified in the health check
+		// definition can override the default health check status (`critical`).
 		health.Status = c.Status
 	}
 	if health.CheckID == "" && health.Name != "" {
