@@ -3966,6 +3966,7 @@ func (a *Agent) loadChecks(conf *config.RuntimeConfig, snap map[structs.CheckID]
 			}
 			a.logger.Debug("restored health check from file",
 				"check", p.Check.CheckID,
+				"status", p.Check.Status,
 				"file", file,
 			)
 		}
