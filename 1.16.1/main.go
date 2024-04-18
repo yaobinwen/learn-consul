@@ -22,6 +22,8 @@ func main() {
 }
 
 func realMain() int {
+	// NOTE(ywen): Is this `io.Discard` the reason I wrote logs using `log`
+	// module but didn't see anything?
 	log.SetOutput(io.Discard)
 
 	ui := &cli.BasicUI{
@@ -34,6 +36,8 @@ func realMain() int {
 	}
 
 	cli := &mcli.CLI{
+		// NOTE(ywen): Sub-command should be the first argument in `Args`.
+		// `cli.Run()` will use that to run the appropriate command.
 		Args:         os.Args[1:],
 		Commands:     cmds,
 		Autocomplete: true,
