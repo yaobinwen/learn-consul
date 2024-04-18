@@ -2397,6 +2397,7 @@ type IndexedNodeServiceList struct {
 }
 
 type IndexedHealthChecks struct {
+	// NOTE(ywen): Defined in `proto-public/pbcatalog/v1alpha1/health.proto`.
 	HealthChecks HealthChecks
 	QueryMeta
 }
