@@ -744,14 +744,14 @@ func (a *Agent) Start(ctx context.Context) error {
 	emptyCheckSnapshot := map[structs.CheckID]*structs.HealthCheck{}
 	a.logger.Info(
 		"[ywen] Agent.Start: loading services: ",
-		"check snapshot (actually an empty one): ", emptyCheckSnapshot,
+		"check snapshot (actually an empty one)", emptyCheckSnapshot,
 	)
 	if err := a.loadServices(c, emptyCheckSnapshot); err != nil {
 		return err
 	}
 	a.logger.Info("[ywen] Agent.Start: services loaded")
 
-	a.logger.Info("[ywen] Agent.Start: loading checks: ", "check snapshot: ", nil)
+	a.logger.Info("[ywen] Agent.Start: loading checks", "check snapshot", nil)
 	if err := a.loadChecks(c, nil); err != nil {
 		return err
 	}
@@ -3663,14 +3663,14 @@ func (a *Agent) loadServices(conf *config.RuntimeConfig, snap map[structs.CheckI
 			return fmt.Errorf("Failed to validate checks for service %q: %v", service.Name, err)
 		}
 		a.logger.Info(
-			"[ywen] Agent.loadServices (from config): loading service: ",
-			"id: ", ns.ID,
-			"name:", ns.Service,
-			"tags:", ns.Tags,
-			"address:", ns.Address,
-			"meta:", ns.Meta,
-			"port:", ns.Port,
-			" with check types: ", chkTypes,
+			"[ywen] Agent.loadServices (from config): loading service",
+			"id", ns.ID,
+			"name", ns.Service,
+			"tags", ns.Tags,
+			"address", ns.Address,
+			"meta", ns.Meta,
+			"port", ns.Port,
+			"check types", chkTypes,
 		)
 
 		// Grab and validate sidecar if there is one too
@@ -3704,7 +3704,7 @@ func (a *Agent) loadServices(conf *config.RuntimeConfig, snap map[structs.CheckI
 		// If there is a sidecar service, register that too.
 		if sidecar != nil {
 			a.logger.Info(
-				"[ywen] Agent.loadServices: service ", ns.Service,
+				"[ywen] Agent.loadServices", "service", ns.Service,
 				" has a sidecar. Register it.",
 			)
 			sidecarServiceID := sidecar.CompoundServiceID()
@@ -3726,7 +3726,7 @@ func (a *Agent) loadServices(conf *config.RuntimeConfig, snap map[structs.CheckI
 			}
 		} else {
 			a.logger.Info(
-				"[ywen] Agent.loadServices: service ", ns.Service,
+				"[ywen] Agent.loadServices", "service", ns.Service,
 				" does not have any sidecar. Skip sidecar registration.",
 			)
 		}
@@ -3893,14 +3893,13 @@ func (a *Agent) loadChecks(conf *config.RuntimeConfig, snap map[structs.CheckID]
 		// NOTE(ywen): `HealthCheck` is a function defined in `agent/structs/check_definition.go`.
 		health := check.HealthCheck(conf.NodeName)
 		a.logger.Info(
-			"[ywen] Agent.loadChecks: ",
-			"preparing to register a check (before applying snapshot status): ",
-			"id: ", check.ID,
-			"name: ", check.Name,
-			"service id: ", check.ServiceID,
-			"initial status: ", health.Status,
-			"interval: ", health.Interval,
-			"timeout: ", health.Timeout,
+			"[ywen] Agent.loadChecks: preparing to register a check (before applying snapshot status)",
+			"id", check.ID,
+			"name", check.Name,
+			"service id", check.ServiceID,
+			"initial status", health.Status,
+			"interval", health.Interval,
+			"timeout", health.Timeout,
 		)
 
 		// Restore the fields from the snapshot.
@@ -3911,31 +3910,32 @@ func (a *Agent) loadChecks(conf *config.RuntimeConfig, snap map[structs.CheckID]
 
 		chkType := check.CheckType()
 		a.logger.Info(
-			"[ywen] registering a check (after applying snapshot status): ",
-			"id: ", check.ID,
-			"name: ", check.Name,
-			"type: ", chkType,
-			"service id: ", check.ServiceID,
-			"current status: ", health.Status,
-			"output: ", health.Output,
+			"[ywen] registering a check (after applying snapshot status)",
+			"id", check.ID,
+			"name", check.Name,
+			"type", chkType,
+			"service id", check.ServiceID,
+			"current status", health.Status,
+			"output", health.Output,
 		)
 		if err := a.addCheckLocked(health, chkType, false, check.Token, ConfigSourceLocal); err != nil {
 			return fmt.Errorf("Failed to register check '%s': %v %v", check.Name, err, check)
 		}
 
 		a.logger.Info(
-			"[ywen] check registered: ",
-			"id: ", check.ID,
-			"name: ", check.Name,
-			"type: ", chkType,
-			"service id: ", check.ServiceID,
-			"current status: ", health.Status,
-			"output: ", health.Output,
+			"[ywen] check registered",
+			"id", check.ID,
+			"name", check.Name,
+			"type", chkType,
+			"service id", check.ServiceID,
+			"current status", health.Status,
+			"output", health.Output,
 		)
 	}
 
 	// Load any persisted checks
-	a.logger.Info("[ywen] Agent.loadChecks: loading persisted health checks from directory ", checksDir)
+	a.logger.Info(
+		"[ywen] Agent.loadChecks: loading persisted health checks", "from directory", checksDir)
 	checkDir := filepath.Join(a.config.DataDir, checksDir)
 	files, err := os.ReadDir(checkDir)
 	if err != nil {
@@ -4017,7 +4017,8 @@ func (a *Agent) loadChecks(conf *config.RuntimeConfig, snap map[structs.CheckID]
 		} else {
 			a.logger.Info(
 				"[ywen] health check doesn't exist, restoring from file (before applying snapshot)",
-				"check", checkID.String(), "file", file,
+				"check", checkID.String(),
+				"file", file,
 				"initial status", api.HealthCritical,
 			)
 
@@ -4047,7 +4048,7 @@ func (a *Agent) loadChecks(conf *config.RuntimeConfig, snap map[structs.CheckID]
 					return fmt.Errorf("Failed purging check %q: %w", checkID, err)
 				}
 			}
-			a.logger.Info("restored health check from file",
+			a.logger.Info("[ywen] restored health check from file",
 				"check", p.Check.CheckID,
 				"status", p.Check.Status,
 				"file", file,
@@ -4305,19 +4306,29 @@ func (a *Agent) reloadConfigInternal(newCfg *config.RuntimeConfig) error {
 	}
 
 	// Reload service/check definitions and metadata.
-	a.logger.Info("[ywen] reloading config: loading services: newCfg: ", newCfg, "check snapshot: ", snap)
+	a.logger.Info(
+		"[ywen] reloading config: loading services",
+		"newCfg", newCfg, "check snapshot", snap,
+	)
 	if err := a.loadServices(newCfg, snap); err != nil {
 		return fmt.Errorf("Failed reloading services: %s", err)
 	}
 	a.logger.Info("[ywen] reloading config: services loaded")
 
-	a.logger.Info("[ywen] reloading config: loading checks: newCfg: ", newCfg, "check snapshot: ", snap)
+	a.logger.Info(
+		"[ywen] reloading config: loading checks",
+		"newCfg", newCfg,
+		"check snapshot", snap,
+	)
 	if err := a.loadChecks(newCfg, snap); err != nil {
 		return fmt.Errorf("Failed reloading checks: %s", err)
 	}
 	a.logger.Info("[ywen] reloading config: checks loaded")
 
-	a.logger.Info("[ywen] reloading config: loading metadata: newCfg: ", newCfg)
+	a.logger.Info(
+		"[ywen] reloading config: loading metadata",
+		"newCfg", newCfg,
+	)
 	if err := a.loadMetadata(newCfg); err != nil {
 		return fmt.Errorf("Failed reloading metadata: %s", err)
 	}
