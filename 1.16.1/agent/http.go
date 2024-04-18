@@ -510,14 +510,6 @@ func (s *HTTPHandlers) wrap(handler endpoint, methods []string) http.HandlerFunc
 		}
 
 		start := time.Now()
-		defer func() {
-			httpLogger.Debug("Request finished",
-				"method", req.Method,
-				"url", logURL,
-				"from", req.RemoteAddr,
-				"latency", time.Since(start).String(),
-			)
-		}()
 
 		var obj interface{}
 
@@ -593,6 +585,24 @@ func (s *HTTPHandlers) wrap(handler endpoint, methods []string) http.HandlerFunc
 		resp.Header().Set("Content-Type", contentType)
 		resp.WriteHeader(httpCode)
 		resp.Write(buf)
+
+		defer func() {
+			var body_msg string
+			if contentType == "application/json" {
+				body_msg = string(buf)
+			} else {
+				body_msg = "(just bytes)"
+			}
+
+			httpLogger.Info("Request finished",
+				"method", req.Method,
+				"url", logURL,
+				"from", req.RemoteAddr,
+				"latency", time.Since(start).String(),
+				"response", resp,
+				"res.body", body_msg,
+			)
+		}()
 	}
 }
 
